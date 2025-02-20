@@ -1,19 +1,16 @@
+from com.junyeongc.models.datareader import DataReader
+from com.junyeongc.models.dataset import Dataset
 import pandas as pd
 import os
 
-from com.junyeongc.models.dataset import DataReader
-
-
-
-
 class CrimeService:
-    dataset = DataReader()
+    dataset = Dataset()
+    datareader = DataReader()
     def new_model(self, fname) -> object:
+        reader = self.datareader
         this = self.dataset
         print(f"Dataset 객체 확인: {this}")
-        this.context = self.dataset.context
-        this.fname = self.dataset.fname
-        file_path = os.path.join(this.context, fname)
+        file_path = os.path.join(reader._context, fname)
         if fname.endswith(".csv"):
             print(f"📂 CSV 파일 로드: {file_path}")
             return pd.read_csv(file_path)
@@ -29,7 +26,7 @@ class CrimeService:
         for i in args:
             temp.append(i)
 
-        this = self.dataset
+        this = self.datareader
         this.cctv = self.new_model(temp[0])
         this.crime = self.new_model(temp[1])
         this.pop = self.new_model(temp[2])

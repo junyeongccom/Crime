@@ -1,9 +1,11 @@
 from com.junyeongc.models.crime_service import CrimeService
-from com.junyeongc.models.dataset import DataReader
+from com.junyeongc.models.datareader import DataReader
+from com.junyeongc.models.dataset import Dataset
 
 
 class CrimeController:
-    dataset = DataReader()
+    dataset = Dataset()
+    datareader = DataReader()
     service = CrimeService()
     def modeling(self, *args):
         this = self.service.preprocess(*args)
