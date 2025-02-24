@@ -11,6 +11,7 @@ class CrimeController:
         this = self.service.preprocess(*args)
         self.print_this(this)
         return this
+    
     @staticmethod
     def print_this(this):
         print('*' * 100)

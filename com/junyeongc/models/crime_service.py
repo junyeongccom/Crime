@@ -3,6 +3,8 @@ from com.junyeongc.models.dataset import Dataset
 import pandas as pd
 import os
 
+from com.junyeongc.models.googlemap_singleton import ApiKeyManager
+
 class CrimeService:
     dataset = Dataset()
     datareader = DataReader()
@@ -31,11 +33,12 @@ class CrimeService:
         this.cctv = self.new_model(temp[0])
         this = self.cctv_ratio(this)
         this.crime = self.new_model(temp[1])
-        this = self.crime_ratio(this)
+        #this = self.crime_ratio(this)
         this.pop = self.new_model(temp[2])
         this = self.pop_ratio(this)
+        DataReader.google_api()
         return this
-    
+
     @staticmethod
     def cctv_ratio(this) -> object:
         cctv = this.cctv
@@ -48,16 +51,35 @@ class CrimeService:
     @staticmethod
     def crime_ratio(this) -> object:
         crime = this.crime
+        print(f"😄crime 데이터 확인:\n{crime.head()}")
+        CrimeService.null_count(crime)
         station_names = [] # 경찰서 관서명 리스트
         for name in crime['관서명']:
             station_names.append('서울' + str(name[:-1]) + '경찰서')
-        print(station_names)
+        print(f"😄관서명 리스트:{station_names}")
         station_addrs = []
         station_lats = []
         station_lngs = []
-        # gmaps = DataReader.create_gmaps()
-        print(f"😄crime 데이터 확인:\n{crime.head()}")
-        CrimeService.null_count(crime)
+        gmaps = DataReader.google_api()
+        for name in station_names:
+            tmp = gmaps.geocode(name, language = 'ko')
+            station_addrs.append(tmp[0].get("formatted_address"))
+            print(f"{name}의 검색결과: {tmp[0].get("formatted_address")}")
+            tmp_loc = tmp[0].get("geometry")
+            station_lats.append(tmp_loc['location']['lat'])
+            station_lngs.append(tmp_loc['location']['lng'])
+        print(f"😄자치구 리스트: {station_addrs}")    
+        gu_names = []
+        for addr in station_addrs:
+            tmp = addr.split()
+            tmp_gu = [gu for gu in tmp if gu[-1] == '구'][0]
+            gu_names.append(tmp_gu)
+        crime['자치구'] = gu_names
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # 현재 .py 파일 기준 디렉터리
+        SAVE_DIR = os.path.join(BASE_DIR, '..', 'saved_data')  # 한 단계 상위로 올라가서 saved_data
+        os.makedirs(SAVE_DIR, exist_ok=True)  # 폴더가 없으면 생성
+        csv_file_path = os.path.join(SAVE_DIR, 'police_position.csv')
+        crime.to_csv(csv_file_path)
         return this
     
     @staticmethod
@@ -81,4 +103,15 @@ class CrimeService:
         else:
             print(f"⚠️ 컬럼 결측값 개수:{total_nulls}")
         return df
+    
+    #@staticmethod
+    #def check_api():
+    #    s1 = ApiKeyManager()
+    #    s2 = ApiKeyManager()
+    #    s1.set_api_key("set_api_key")
+    #    print(f"s1의 api_key: {s1.get_api_key()}")
+    #    print(f"s2의 api_key: {s2.get_api_key()}")
+    #    print(f"😶s1 is s2 => {s1 is s2}")
+    #    print(f"s1의 id => {id(s1)}")
+    #    print(f"s2의 id => {id(s2)}")
     

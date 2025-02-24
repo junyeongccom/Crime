@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from flask import json
 import googlemaps
 import pandas as pd
-
+from com.junyeongc.models.googlemap_singleton import ApiKeyManager
 
 @dataclass
 class DataReader:
@@ -40,5 +40,10 @@ class DataReader:
         return json.load(open(file))
 
     @staticmethod   
-    def create_gmaps():
-        return googlemaps.Client(key='')
+    def google_api():
+        manager = ApiKeyManager()
+        manager.set_api_key()
+        print("현재 API 키:", manager.get_api_key())
+        gmaps = googlemaps.Client(key=manager.get_api_key())
+        return gmaps
+
