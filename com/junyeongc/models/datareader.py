@@ -39,11 +39,3 @@ class DataReader:
         file = self.new_file()
         return json.load(open(file))
 
-    @staticmethod   
-    def google_api():
-        manager = ApiKeyManager()
-        manager.set_api_key()
-        print("현재 API 키:", manager.get_api_key())
-        gmaps = googlemaps.Client(key=manager.get_api_key())
-        return gmaps
-

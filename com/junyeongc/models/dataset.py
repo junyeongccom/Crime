@@ -6,6 +6,7 @@ class Dataset:
     crime : object
     pop : object
 
+
     @property
     def cctv(self) -> object:
         return self._cctv
@@ -24,3 +25,4 @@ class Dataset:
     @pop.setter
     def pop(self,pop):
         self._pop = pop
+
